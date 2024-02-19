@@ -1,0 +1,4 @@
+Title: Real-time Face Verification using DeepFace
+
+Description:
+This Python code implements a real-time face verification system using the DeepFace library. It uses the OpenCV library to capture frames from the webcam and DeepFace to perform face verification on each frame. Face verification is the task of verifying whether two faces belong to the same person or not.
