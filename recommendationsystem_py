@@ -1,1 +1,43 @@
-This Python code implements a simple movie recommendation system using the TF-IDF (Term Frequency-Inverse Document Frequency) vectorization technique and cosine similarity. It uses a dataset of movies containing information such as titles, overviews, and other details. The TF-IDF vectorization is applied to the movie overviews to convert them into numerical vectors. The cosine similarity is then calculated between these vectors to determine the similarity between movies based on their overviews.
+# This Python code implements a simple movie recommendation system using the TF-IDF (Term Frequency-Inverse Document Frequency) vectorization technique and cosine similarity. It uses a dataset of movies containing information such as titles, overviews, and other details. The TF-IDF vectorization is applied to the movie overviews to convert them into numerical vectors. The cosine similarity is then calculated between these vectors to determine the similarity between movies based on their overviews.
+
+# Movie Recommendation System
+
+This Python code uses the TMDB 5000 movie dataset to create a simple movie recommendation system. It loads the dataset, processes the movie overviews using TF-IDF vectorization, computes the cosine similarity matrix, and provides movie recommendations based on a given movie title.
+
+## Usage
+
+You can use this code to get movie recommendations by calling the `get_recommendations` function with a movie title.
+
+```python
+import pandas as pd
+import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import linear_kernel
+
+# Load the dataset
+df_movies = pd.read_csv("/kaggle/input/tmdb-movie-metadata/tmdb_5000_movies.csv")
+df_credits = pd.read_csv("/kaggle/input/tmdb-movie-metadata/tmdb_5000_credits.csv")
+
+df_movies['overview'] = df_movies['overview'].fillna("")
+
+# TF-IDF Vectorization
+tfidf = TfidfVectorizer(stop_words="english")
+tfidf_matrix = tfidf.fit_transform(df_movies['overview'])
+
+# Compute the cosine similarity matrix
+cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
+
+indices = pd.Series(df_movies.index, index=df_movies['original_title']).drop_duplicates()
+
+def get_recommendations(title, cosine_sim=cosine_sim):
+    idx = indices[title]
+    sim_scores = list(enumerate(cosine_sim[idx]))
+
+    # Get the top 10 most similar movies
+    sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+    sim_scores = sim_scores[1:11]
+    movie_indices = [i[0] for i in sim_scores]
+    return df_movies['original_title'].iloc[movie_indices]
+
+# Example usage
+print(get_recommendations('The Dark Knight Rises'))
